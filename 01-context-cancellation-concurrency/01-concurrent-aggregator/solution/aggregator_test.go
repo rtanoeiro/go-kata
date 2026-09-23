@@ -369,6 +369,56 @@ func TestAggregate(t *testing.T) {
 			},
 		},
 		{
+			"timeout 1s, profile error, order error, profile and order take same time",
+			Input{
+				&ProfileServiceMock{
+					2000 * time.Millisecond,
+					true,
+					basicProfiles,
+				},
+				&OrderServiceMock{
+					2000 * time.Millisecond,
+					true,
+					[]*order.Order{
+						{1, 1, 100.0},
+						{3, 1, 30.79},
+					},
+				},
+				1,
+				1000 * time.Millisecond,
+				0,
+			},
+			Expected{
+				emptyAggregateProfiles,
+				true,
+			},
+		},
+		{
+			"timeout 100ms, order long time to fetch data, checks if it fails fast",
+			Input{
+				&ProfileServiceMock{
+					0 * time.Millisecond,
+					true,
+					basicProfiles,
+				},
+				&OrderServiceMock{
+					10000 * time.Millisecond,
+					true,
+					[]*order.Order{
+						{1, 1, 100.0},
+						{3, 1, 30.79},
+					},
+				},
+				1,
+				100 * time.Millisecond,
+				0,
+			},
+			Expected{
+				emptyAggregateProfiles,
+				true,
+			},
+		},
+		{
 			"order service error propagates correctly",
 			Input{
 				&ProfileServiceMock{10 * time.Millisecond, false, basicProfiles},
