@@ -26,12 +26,6 @@ jobs:
           experimental: true # [default: false] enable experimental features
           log_level: debug # [default: info] log level
           # automatically write this .tool-versions file
-          tool_versions: |
-            shellcheck 0.11.0
-          # or, if you prefer .mise.toml format:
-          mise_toml: |
-            [tools]
-            shellcheck = "0.11.0"
           env: true # [default: true] export mise environment variables
           export_path: true # [default: true] add mise PATH entries to subsequent steps
           github_token: ${{ secrets.GITHUB_TOKEN }} # [default: ${{ github.token }}] GitHub token for API authentication
