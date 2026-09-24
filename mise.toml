@@ -1,9 +1,18 @@
 [tools]
 go = "latest"
 
-[task.tests]
+[tasks.tests]
 description = "Run tests for challenges that were completed"
+depends = ["tests-01", "tests-02"]
+
+[tasks.tests-01]
+description = "Run tests for 1st challenge"
 run = """
 cd 01-context-cancellation-concurrency/01-concurrent-aggregator/solution && chmod +x test.sh && bash test.sh
+"""
+
+[tasks.tests-02]
+description = "Run tests for 2nd challenge"
+run = """
 cd 02-performance-allocation/02-concurrent-map-with-sharded-locks && chmod +x test.sh && bash test.sh
 """
