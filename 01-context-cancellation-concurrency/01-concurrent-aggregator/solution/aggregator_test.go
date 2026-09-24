@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/medunes/go-kata/01-context-cancellation-concurrency/01-concurrent-aggregator/order"
-	"github.com/medunes/go-kata/01-context-cancellation-concurrency/01-concurrent-aggregator/profile"
+	"github.com/rtanoeiro/go-kata/01-context-cancellation-concurrency/01-concurrent-aggregator/order"
+	"github.com/rtanoeiro/go-kata/01-context-cancellation-concurrency/01-concurrent-aggregator/profile"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
