@@ -9,68 +9,30 @@ on:
       - master
 
 jobs:
-  lint:
+  tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
         with:
-          fetch-depth: 0
-
-      - name: Setup go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-          check-latest: true
-      - name: Check Go formatting
-        run: |
-          UNFORMATTED_FILES=$(gofmt -l .)
-          if [ -n "$UNFORMATTED_FILES" ]; then
-            echo "::error::The following files are not formatted correctly:"
-            echo "$UNFORMATTED_FILES"
-            gofmt -d
-            exit 1
-          fi
-  test:
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest ]
-        go: [ 1.25 ]
-        include:
-          - os: ubuntu-latest
-            go-build: ~/.cache/go-build
-          - os: macos-latest
-            go-build: /Users/runner/Library/Caches/go-build
-    name: ${{ matrix.os }} @ Go ${{ matrix.go }}
-    runs-on: ${{ matrix.os }}
-    env:
-      GO111MODULE: on
-      GOPROXY: https://proxy.golang.org
-    steps:
-      - name: Set up Go ${{ matrix.go }}
-        uses: actions/setup-go@v6
-        with:
-          go-version: ${{ matrix.go }}
-
-      - name: Checkout Code
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.ref }}
-
-      - uses: actions/cache@v5
-        with:
-          path: |
-            ${{ matrix.go-build }}
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      - name: Tests
-        run: |
-          go run gotest.tools/gotestsum@latest --format=testdox  -- -covermode=atomic -coverprofile=coverage.txt ./...
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          flags: ${{ matrix.os }},go-${{ matrix.go }}
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: medunes/go-kata
+          version: latest # [default: latest] mise version to install
+          # minimum_release_age: 7d # select mise releases at least 7 days old instead of setting version
+          install: true # [default: true] run `mise install`
+          install_args: "bun" # [default: ""] additional arguments to `mise install`
+          bootstrap: false # [default: false] run `mise bootstrap` instead of `mise install`
+          bootstrap_skip: "tools,task" # [default: ""] comma-separated parts to skip when bootstrapping
+          bootstrap_args: "--yes" # [default: ""] additional arguments to `mise bootstrap`
+          cache: true # [default: true] cache mise using GitHub's cache
+          experimental: true # [default: false] enable experimental features
+          log_level: debug # [default: info] log level
+          # automatically write this .tool-versions file
+          tool_versions: |
+            shellcheck 0.11.0
+          # or, if you prefer .mise.toml format:
+          mise_toml: |
+            [tools]
+            shellcheck = "0.11.0"
+          env: true # [default: true] export mise environment variables
+          export_path: true # [default: true] add mise PATH entries to subsequent steps
+          github_token: ${{ secrets.GITHUB_TOKEN }} # [default: ${{ github.token }}] GitHub token for API authentication
+      - run: mise run tests
